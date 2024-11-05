@@ -14,15 +14,22 @@ def apply_gradient_descent(x0, f_function, eta, num_steps):
     x=x0
     for i in range(num_steps):
         x = x - differentiate(f_function, x) * eta
-        # print("x=%.3f, f=%.3f" % (x.numpy(), f_function(x).numpy())) # show progress
+        print("x=%.3f, f=%.3f" % (x, f_function(x))) # show progress
     return x
 
-# test
-# def f_function(x):
-#    return x*x
-# x0=tf.constant(10.0, tf.float32)
-# x=apply_gradient_descent(x0, f_function, eta=0.1, num_steps=100)
-# print("Optimized x: ", x.numpy())
+# Test
+# def test_function(x):
+#     return np.sum(x**2)
+#
+# x0 = np.array([2.0, 3.0])  # 初始点
+# eta = 0.1
+# num_steps = 100
+#
+# result = apply_gradient_descent(x0, test_function, eta, num_steps)
+#
+# print("优化后的结果:", result)
+# print("函数值:", test_function(result))
+
 
 
 
