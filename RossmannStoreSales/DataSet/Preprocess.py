@@ -107,7 +107,7 @@ while True:
     elif preprocess_method == "exit":
         break
 
-data.to_csv('preprocess_data.csv', index=False)
+data.to_csv('preprocessed_data.csv', index=False)
 
 
 
