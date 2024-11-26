@@ -1,4 +1,5 @@
 import numpy as np
+
 def differentiate(f_function, x, h=1e-5):
     gradient = np.zeros_like(x)
     for i in range(len(x)):
@@ -10,10 +11,13 @@ def differentiate(f_function, x, h=1e-5):
         gradient[i] = (f_x_h - f_x_minus_h) / (2 * h)  # 中心差分公式
     return gradient
 
-def apply_gradient_descent(x0, f_function, eta, num_steps):
-    x=x0
+def apply_gradient_descent(x0, f_function, eta, num_steps, min_grad=1e-5):
+    x = x0
     for i in range(num_steps):
-        x = x - differentiate(f_function, x) * eta
+        grad = differentiate(f_function, x)
+        if np.linalg.norm(grad) < min_grad:
+            break
+        x = x - grad * eta
         # print("x=%.3f, f=%.3f" % (x, f_function(x))) # show progress
     return x
 

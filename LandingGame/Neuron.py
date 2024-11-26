@@ -8,28 +8,29 @@ class Neuron:
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
-    
+
     def activate(self, inputs):
         weighted_sum = np.dot(inputs, self.weights)
         self.activation_value = self.sigmoid(weighted_sum)
         return self.activation_value
-    
-    def weight_multiply(self, weight_index):
-        return self.activation_value * self.weights[weight_index]
 
     def loss_function(self, weights, inputs, error):
         self.weights = weights
         activation = self.activate(inputs)
-        return np.mean(np.sum((error - activation)**2)) # mean square error
+        return np.mean((error - activation)**2) # mean square error
 
-    def update_weights(self, inputs, eta, error, num_steps = 1):
+    def update_weights(self, inputs, eta, error, num_steps=1, momentum=0.9, previous_update=None):
         delta_weights = gd.apply_gradient_descent(
             self.weights,
             lambda w: self.loss_function(w, inputs, error),
             eta,
             num_steps,
         )
+        if previous_update is not None:
+            delta_weights += momentum * previous_update
         self.weights = delta_weights
+        return delta_weights  # 返回更新值，方便保存到 previous_update
+
 
 class NeuralNetwork:
     def __init__(self, num_neuron, eta = 0.1, momentum = 0.9):
@@ -63,11 +64,28 @@ class NeuralNetwork:
                 self.learning_rate,
                 output_errors[index],
                 num_steps = 1,
+                momentum = self.momentum,
+                previous_update = previous_update
             )
 
+        hidden_errors = np.zeros(len(self.hidden_layer))
+        for i, hidden_neuron in enumerate(self.hidden_layer):
+            hidden_errors[i]=0
+            for j in range(len(self.output_layer)):
+                hidden_errors[i] += output_errors[j] * self.output_layer[j].weights[i]
 
+            hidden_neuron.update_weights(
+                inputs,
+                self.learning_rate,
+                hidden_errors[i],
+                num_steps = 1,
+            )
 
-
-
-
-
+    # def update_weights(self, inputs, eta, error, num_steps = 1):
+    #     delta_weights = gd.apply_gradient_descent(
+    #         self.weights,
+    #         lambda w: self.loss_function(w, inputs, error),
+    #         eta,
+    #         num_steps,
+    #     )
+    #     self.weights = delta_weights
