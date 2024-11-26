@@ -1,22 +1,23 @@
 import pandas as pd
 
-#Load CSV files for iris datasets
-inputs_train=pd.read_csv('DataSet/train.csv',usecols = [0,1],skiprows = 1,header=None).values
-labels_train = pd.read_csv('DataSet/train.csv',usecols = [2,3],skiprows = 1 ,header=None).values
+#Load CSV
+inputs_train=pd.read_csv('DataSet/preprocessed_train.csv',usecols = [0,19],skiprows = 1,header=None).values
+outputs_train = pd.read_csv('DataSet/train.csv',usecols = [20] ,header=None).values
+
 inputs_val=pd.read_csv('DataSet/train.csv',usecols = [0,1],skiprows = 1,header=None).values
 labels_val = pd.read_csv('DataSet/train.csv',usecols = [2,3],skiprows = 1 ,header=None).values
-print("Data loaded (shapes only)", inputs_train.shape, labels_train.shape, inputs_val.shape, labels_val.shape)
+print("Data loaded (shapes only)", inputs_train.shape, outputs_train.shape, inputs_val.shape, labels_val.shape)
 # Data loaded
 
 import tensorflow as tf
 import keras
 from keras import layers
 
-num_inputs=2
+num_inputs=20
 num_outputs=2
 
 model = keras.Sequential(name="RossmannStoreSales")
-layer0 = layers.Input(shape=(2,)) # input_layer
+layer0 = layers.Input(shape=(20,)) # input_layer
 layer1 = layers.Dense(6, activation="tanh") # hidden layer
 layer2 = layers.Dense(2, activation="softmax")
 model.add(layer0)

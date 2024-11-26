@@ -14,7 +14,7 @@ def apply_gradient_descent(x0, f_function, eta, num_steps):
     x=x0
     for i in range(num_steps):
         x = x - differentiate(f_function, x) * eta
-        print("x=%.3f, f=%.3f" % (x, f_function(x))) # show progress
+        # print("x=%.3f, f=%.3f" % (x, f_function(x))) # show progress
     return x
 
 # Test

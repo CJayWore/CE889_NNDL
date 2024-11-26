@@ -4,7 +4,6 @@ import gradient_descent as gd
 class Neuron:
     def __init__(self, size_input):
         self.activation_value = 0
-        # self.weights = weight_input
         self.weights = np.random.rand(size_input)
 
     def sigmoid(self, x):
@@ -21,16 +20,16 @@ class Neuron:
     def loss_function(self, weights, inputs, error):
         self.weights = weights
         activation = self.activate(inputs)
-        return np.sum((error - activation)**2) #square error
+        return np.mean(np.sum((error - activation)**2)) # mean square error
 
     def update_weights(self, inputs, eta, error, num_steps = 1):
-        update_weights = gd.apply_gradient_descent(
+        delta_weights = gd.apply_gradient_descent(
             self.weights,
             lambda w: self.loss_function(w, inputs, error),
             eta,
             num_steps,
         )
-        self.weights = update_weights
+        self.weights = delta_weights
 
 class NeuralNetwork:
     def __init__(self, num_neuron, eta = 0.1, momentum = 0.9):
@@ -68,34 +67,7 @@ class NeuralNetwork:
 
 
 
-#Test
-inputs = np.array([
-    [0,0],[0,1],[1,0],[1,1]
-])
-outputs = np.array([
-    [0],[1],[1],[0]
-])
 
-print("测试ffnn")
-nn = NeuralNetwork(num_neuron = 3, eta = 0.1, momentum = 0.9)
-for input_data in inputs:
-    output = nn.feedforward(input_data)
-    print(f"Input: {input_data}, Output: {output}")
 
-print(("测试ffnn和bpg"))
-epochs = 1000
-for epochs in range(epochs):
-    for input_data, target_output in zip(inputs, outputs):
-        predict_outputs = nn.feedforward(input_data)
-        nn.backpropagate(input_data, target_output)
 
-    if epochs % 100 ==0:
-        total_error = 0
-        for input_data, target_output in zip(inputs, outputs):
-            predict_outputs = nn.feedforward(input_data)
-            total_error += np.sum((target_output - predict_outputs)**2)
-        print(f"epoch {epochs}, total error: {total_error}")
 
-for input_data in inputs:
-    output = nn.feedforward(input_data)
-    print(f"Input: {input_data}, Output: {output}")
