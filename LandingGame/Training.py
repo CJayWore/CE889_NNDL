@@ -7,7 +7,7 @@ from sklearn.model_selection import KFold
 
 
 # 配置日志
-logging.basicConfig(filename='TRAINING_LOG.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(filename='Predictions/TraningLog.log', level=logging.INFO, format='%(asctime)s - %(message)s')
 
 def save_predictions(inputs, predicted_output, targets, filename):
     data = {
@@ -21,17 +21,17 @@ def save_predictions(inputs, predicted_output, targets, filename):
     df = pd.DataFrame(data)
     df.to_csv(filename, index=False)
 
-
+# Setting NeuralNetwork
 data = pd.read_csv('DataSet/normalized_data.csv', header=None).to_numpy()
-nn = NN.NeuralNetwork(learning_rate=0.55, momentum=0.5)
+nn = NN.NeuralNetwork(learning_rate=0.01, momentum=0.55)
 logging.info(f'Data_shape: {data.shape}')
-logging.info('Network: learning rate=0.3, momentum=0.55, min_gradient=1e-5')
+logging.info(f'Network: learning rate={nn.learning_rate}, momentum={nn.momentum}, min_gradient={nn.min_gradient}')
 
 kf = KFold(n_splits=5, random_state=3, shuffle=True)
 fold = 0
 
 # training
-epochs = 10
+epochs = 100
 logging.info('Training in process')
 logging.info(f'n_splits={kf.n_splits}, random_state={kf.random_state}')
 for i_train, i_test in kf.split(data):
@@ -63,25 +63,26 @@ for i_train, i_test in kf.split(data):
 
     logging.info('Testing in process')
 
-    def mean_squared_error(predicted_output, real_output):
+    def root_mean_squared_error(predicted_output, real_output):
         return np.mean((predicted_output - real_output) ** 2)
 
-    mse_threshold = 0.05  # 设置一个阈值来判断预测是否准确
-    logging.info(f'MSE threshold: {mse_threshold}')
+    rmse_threshold = 0.05  # 设置一个阈值来判断预测是否准确
+    logging.info(f'RMSE threshold: {rmse_threshold}')
 
     for inputs, real_output in zip(inputs_test, outputs_test):
         predicted_output = nn.feedforward(inputs)
         predicted_outputs.append(predicted_output)
-        mse = mean_squared_error(np.array(predicted_output), real_output)
-        if mse < mse_threshold:
+        rmse = root_mean_squared_error(np.array(predicted_output), real_output)
+        # print(f'RMSE: {rmse}')
+        if rmse < rmse_threshold:
             correct_predictions += 1
-
+    # TODO 计算RMSE并且log
     predicted_outputs = np.array(predicted_outputs)
     accuracy = (correct_predictions / total_predictions) * 100
     logging.info(f'Test Accuracy: {accuracy:.2f}%')
     logging.info(f'Fold {fold} completed \n')
     save_predictions(
-        inputs_test, predicted_outputs, outputs_test, filename=f"Predictions/Accuracy_{accuracy:.2f}%_prediction.csv"
+        inputs_test, predicted_outputs, outputs_test, filename=f"Predictions/prediction_{accuracy:.2f}_Fold_{fold}%.csv"
     )
 
 logging.info('Cross-validation finished\n\n')
