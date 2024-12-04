@@ -2,17 +2,18 @@ import numpy as np
 
 
 class Neuron:
-    def __init__(self, input_size):
+    def __init__(self, input_size, alpha=0.7):
         self.weights = np.random.rand(input_size)
         self.bias = np.random.rand()
         self.output = 0
         self.input = None
+        self.alpha = alpha
 
     def sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
+        return 1 / (1 + np.exp(-x*self.alpha))
 
     def sigmoid_derivative(self, x):
-        return x * (1 - x)
+        return self.alpha * x * (1 - x)
 
     def activate(self, inputs):
         inputs = np.array(inputs)
@@ -37,10 +38,10 @@ class Neuron:
 
 
 class NeuralNetwork:
-    def __init__(self, learning_rate=0.3, momentum=0.55, min_gradient=1e-5):
+    def __init__(self, learning_rate=0.3, momentum=0.55):
         self.learning_rate = learning_rate
         self.momentum = momentum
-        self.min_gradient = min_gradient
+        # self.min_gradient = min_gradient
 
         # 网络结构
         # 输入层：2个神经元，隐藏层：1层3个神经元，输出层：2个神经元
@@ -90,24 +91,3 @@ class NeuralNetwork:
         # 计算总误差
         total_loss = sum(neuron.loss_function(target) for neuron, target in zip(self.output_layer, targets))
         return total_loss, gradients_hidden, gradients_output
-
-    # def train(self, inputs, targets, epochs):
-    #     for epoch in range(epochs):
-    #         total_loss = 0
-    #         all_gradients_hidden = []
-    #         all_gradients_output = []
-    #         for x, y in zip(inputs, targets):
-    #             loss, gradients_hidden, gradients_output = self.backpropagate(x, y)
-    #             total_loss += loss
-    #             all_gradients_hidden.append(gradients_hidden)
-    #             all_gradients_output.append(gradients_output)
-    #
-    #         # 打印损失和梯度
-    #         if epoch % 10 == 0:
-    #             avg_gradient_hidden = np.mean(all_gradients_hidden, axis=0)
-    #             avg_gradient_output = np.mean(all_gradients_output, axis=0)
-    #             print(f"Epoch {epoch}, Loss: {total_loss}, Avg Gradient Hidden: {avg_gradient_hidden}, Avg Gradient Output: {avg_gradient_output}")
-    #
-    #         # 如果梯度太小，则停止训练
-    #         if total_loss < self.min_gradient:
-    #             break
