@@ -7,6 +7,7 @@ class NeuralNetHolder:
     def __init__(self, learning_rate = 0.00505, momentum = 0.55):
         super().__init__()
         self.neural_network = MyNN.NeuralNetwork(learning_rate=learning_rate, momentum=momentum)
+        self.neural_network.load_weights('best_weights')
         # distance_x_min = -813.9287676
         # distance_y_min = 65.50759614
         #
@@ -35,9 +36,9 @@ class NeuralNetHolder:
 
     def normalize_input(self, input_data):
         # 计算均值和标准差
-        mean = (self.input_max + self.input_min) / 2
+        mean = (self.input_max + self.input_min)/ 2
         std = (self.input_max - self.input_min) / 2
-        # Z-score 标准化
+        # Z-score
         normalized_data = (input_data - mean) / std
         return normalized_data
 
@@ -46,7 +47,7 @@ class NeuralNetHolder:
         output_data = np.array(output_data, dtype=np.float64)
         mean = (self.output_max + self.output_min) / 2
         std = (self.output_max - self.output_min) / 2
-        # Z-score 反标准化
+        # Z-score
         denormalized_data = output_data * std + mean
         return denormalized_data
 

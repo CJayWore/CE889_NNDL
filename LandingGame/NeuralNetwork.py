@@ -51,6 +51,36 @@ class NeuralNetwork:
         self.previous_hidden_deltas = [np.zeros(self.input_layer_size) for _ in range(3)]
         self.previous_output_deltas = [np.zeros(len(self.hidden_layer)) for _ in range(2)]
 
+    def save_weights(self, filename='best_weights.txt'):
+        with open(filename, 'w') as f:
+            for neuron in self.hidden_layer:
+                weights_str = ','.join(map(str, neuron.weights))
+                f.write(f'hidden_layer_weights:{weights_str}\n')
+                f.write(f'hidden_layer_bias:{neuron.bias}\n')
+
+            for neuron in self.output_layer:
+                weights_str = ','.join(map(str, neuron.weights))
+                f.write(f'output_layer_weights:{weights_str}\n')
+                f.write(f'output_layer_bias:{neuron.bias}\n')
+
+    def load_weights(self, filename='best_weights.txt'):
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+
+        idx = 0
+        for neuron in self.hidden_layer:
+            weights = list(map(float, lines[idx].split(':')[1].split(',')))
+            neuron.weights = np.array(weights)
+            neuron.bias = float(lines[idx + 1].split(':')[1])
+            idx += 2
+
+        for neuron in self.output_layer:
+            weights = list(map(float, lines[idx].split(':')[1].split(',')))
+            neuron.weights = np.array(weights)
+            neuron.bias = float(lines[idx + 1].split(':')[1])
+            idx += 2
+
+
     def feedforward(self, inputs):
         # 隐藏层
         hidden_outputs = [neuron.activate(inputs) for neuron in self.hidden_layer]
