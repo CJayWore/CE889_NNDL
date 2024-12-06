@@ -1,10 +1,8 @@
 import numpy as np
 import NeuralNetwork as MyNN
-# from Vector import Vector
-# from Lander import Lander
 
 
-
+# TODO Test your neural network by running the most recent weights
 class NeuralNetHolder:
     def __init__(self, learning_rate = 0.00505, momentum = 0.55):
         super().__init__()
@@ -26,42 +24,49 @@ class NeuralNetHolder:
         self.output_min = np.array([-7.083290281, -7.991966048])  # velocity_x_min, velocity_y_min
         self.output_max = np.array([7.999999999999989, 7.982954972793153])  # velocity_x_max, velocity_y_max
 
-        # self.lander = Lander
+    # def normalize_input(self, input_data):
+    #     normalized_data = 2 * (input_data - self.input_min) / (self.input_max - self.input_min) - 1
+    #     return np.clip(normalized_data, -1, 1)
+    #
+    # def denormalize_output(self, output_data):
+    #     output_data = np.array(output_data,dtype=np.float64)
+    #     denormalized_data = (output_data+1) * (self.output_max - self.output_min)/2 + self.output_min
+    #     return denormalized_data
 
     def normalize_input(self, input_data):
-        return (input_data - self.input_min) / (self.input_max - self.input_min)
+        # 计算均值和标准差
+        mean = (self.input_max + self.input_min) / 2
+        std = (self.input_max - self.input_min) / 2
+        # Z-score 标准化
+        normalized_data = (input_data - mean) / std
+        return normalized_data
 
     def denormalize_output(self, output_data):
-        return output_data * (self.output_max - self.output_min) + self.output_min
+        # 计算均值和标准差
+        output_data = np.array(output_data, dtype=np.float64)
+        mean = (self.output_max + self.output_min) / 2
+        std = (self.output_max - self.output_min) / 2
+        # Z-score 反标准化
+        denormalized_data = output_data * std + mean
+        return denormalized_data
 
-    # def get_distance(self, lander, surface):
-    #     distance_x = surface.centre_landing_pad[0] - lander.position.x
-    #     distance_y = surface.centre_landing_pad[1] - lander.position.y
-    #     return distance_x, distance_y
-    #
-    # def velocity(self, lander, velocity_x, velocity_y):
-    #     lander.velocity = Vector(velocity_x, velocity_y)
+    def process_input(self, input_row):
+        # 处理字符串格式的输入
+        if isinstance(input_row, str):
+            input_row = [float(val.strip()) for val in input_row.split(',')]
+        return np.array(input_row, dtype=np.float64)
 
     def predict(self, input_row):
-        # while True:
-        #     # 1. 获取实时游戏数据 (distance_x, distance_y)
-        #     distance_x, distance_y = self.get_distance(lander)
-        #
-        #     # 2. 将输入数据组织成数组并归一化
-        #     input_row = np.array([distance_x, distance_y])
-        #     normalized_input = self.normalize_input(input_row)
-        #
-        #     # 3. 使用神经网络进行预测
-        #     predicted_output = self.neural_network.feedforward(normalized_input)
-        #     denormalized_output = self.denormalize_output(predicted_output)
-        #
-        #     # 4. 将预测的速度应用到游戏中
-        #     velocity_x, velocity_y = denormalized_output
-        #     self.velocity(lander, velocity_x, velocity_y)
-        while True:
-            normalized_input = self.normalize_input(input_row.to_numpy())
-            predicted_output = self.neural_network.feedforward(normalized_input)
-            denormalized_output = self.denormalize_output(predicted_output)
-            VEL_X, VEL_Y = denormalized_output
 
-            return VEL_X, VEL_Y
+        print('input_row',input_row)
+        input_row=self.process_input(input_row)
+        print('processed input_row',input_row)
+        normalized_input = self.normalize_input(input_row)
+        print('normalized_input',normalized_input)
+        predicted_output = self.neural_network.feedforward(normalized_input)
+        denormalized_output = self.denormalize_output(predicted_output)
+        print('denormalized_output',denormalized_output)
+        # VEL_X, VEL_Y = denormalized_output
+        # print('VEL_X',VEL_X,'VEL_Y',VEL_Y)
+
+        return denormalized_output
