@@ -1,47 +1,44 @@
 import pandas as pd
+import numpy as np
 
-source_df = pd.read_csv('raw_data.csv')
+source_df = pd.read_csv('raw_data.csv',header=None)
 x = len(source_df)//5
 testing_df = source_df.sample(n=x) # 随机选取x行
 training_df = source_df.drop(testing_df.index)
-training_df.to_csv('train.csv', index=False)
-testing_df.to_csv('test.csv', index=False)
+training_df.to_csv('train.csv', index=False, header=False)
+testing_df.to_csv('test.csv', index=False,header=False)
 
 MAX = []
 MIN = []
 # Normalization:
 def normalize_training_data(df):
     result = df.copy()
-    for column in training_df.columns:
+    for column in df.columns:
         max_value = df[column].max()
         MAX.append(max_value)
         min_value = df[column].min()
         MIN.append(min_value)
         result[column] = (df[column] - min_value) / (max_value - min_value)
-    return result
+    min_max_df = pd.DataFrame({
+        'MIN':MIN,
+        'MAX':MAX
+    })
+    print(f'MIN=np.array({MIN}) \nMAX=np.array({MAX})')
+    return result, min_max_df
 
 def normalize_testing_data(df):
     result = df.copy()
     i = 0
-    for column in testing_df.columns:
-        result[column] = (df[column] - MIN[i]) / (MAX[i]-MIN[i])
+    for column in df.columns:
+        result[column] = 2 * (df[column] - MIN[i]) / (MAX[i]-MIN[i]) - 1
         i += 1
     return result
-#
 
-# def normalize_data(df_train, df_test):
-#     train_result = df_train.copy()
-#     test_result = df_test.copy()
-#     for column in training_df.columns:
-#         max_value = df_train[column].max()
-#         min_value = df_train[column].min()
-#         train_result[column] = (df_train[column] - min_value) / (max_value - min_value)
-#         test_result[column] = (df_test[column] - min_value) / (max_value - min_value)
-#     return train_result, test_result
-# train_normalized, test_normalized = normalize_data(training_df,testing_df)
-# print('MAX:', MAX, 'MIN:', MIN)
-train_normalized = normalize_training_data(training_df)
+
+
+train_normalized, min_max_df = normalize_training_data(training_df)
 test_normalized = normalize_testing_data(testing_df)
-train_normalized.to_csv('train_normalized.csv', index=False)
-test_normalized.to_csv('test_normalized.csv', index=False)
+train_normalized.to_csv('train_normalized.csv', index=False,header=False)
+test_normalized.to_csv('test_normalized.csv', index=False,header=False)
 
+min_max_df.to_csv('min_max.csv', index=False)
