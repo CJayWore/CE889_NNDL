@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 
 class Neuron:
@@ -46,39 +47,39 @@ class NeuralNetwork:
         # 网络结构
         # 输入层：2个神经元，隐藏层：1层3个神经元，输出层：2个神经元
         self.input_layer_size = 2
-        self.hidden_layer = [Neuron(self.input_layer_size) for _ in range(3)]
+        self.hidden_layer = [Neuron(self.input_layer_size) for _ in range(4)]
         self.output_layer = [Neuron(len(self.hidden_layer)) for _ in range(2)]
-        self.previous_hidden_deltas = [np.zeros(self.input_layer_size) for _ in range(3)]
+        self.previous_hidden_deltas = [np.zeros(self.input_layer_size) for _ in range(4)]
         self.previous_output_deltas = [np.zeros(len(self.hidden_layer)) for _ in range(2)]
 
-    def save_weights(self, filename='best_weights.txt'):
-        with open(filename, 'w') as f:
-            for neuron in self.hidden_layer:
-                weights_str = ','.join(map(str, neuron.weights))
-                f.write(f'hidden_layer_weights:{weights_str}\n')
-                f.write(f'hidden_layer_bias:{neuron.bias}\n')
+    def save_weights(self, filename='best_weights.csv'):
+        data = []
 
-            for neuron in self.output_layer:
-                weights_str = ','.join(map(str, neuron.weights))
-                f.write(f'output_layer_weights:{weights_str}\n')
-                f.write(f'output_layer_bias:{neuron.bias}\n')
-
-    def load_weights(self, filename='best_weights.txt'):
-        with open(filename, 'r') as f:
-            lines = f.readlines()
-
-        idx = 0
         for neuron in self.hidden_layer:
-            weights = list(map(float, lines[idx].split(':')[1].split(',')))
-            neuron.weights = np.array(weights)
-            neuron.bias = float(lines[idx + 1].split(':')[1])
-            idx += 2
+            data.append(['hidden']+neuron.weights.tolist()+[neuron.bias])
 
         for neuron in self.output_layer:
-            weights = list(map(float, lines[idx].split(':')[1].split(',')))
-            neuron.weights = np.array(weights)
-            neuron.bias = float(lines[idx + 1].split(':')[1])
-            idx += 2
+            data.append(['output'] + neuron.weights.tolist() + [neuron.bias])
+        df = pd.DataFrame(data)
+        df.to_csv(filename,index=False,header=False)
+
+    def load_weights(self, filename='best_weights.txt'):
+        df = pd.read_csv(filename,header=None)
+        hidden_index, output_index = 0,0
+
+        for _, row in df.iterrows():
+            layer_type = row[0]
+            weights = np.array(row[1:-1],dtype=float)
+            bias = float(row[-1])
+
+            if layer_type == 'hidden':
+                self.hidden_layer[hidden_index].weights = weights
+                self.hidden_layer[hidden_index].bias = bias
+                hidden_index += 1
+            elif layer_type == 'output':
+                self.output_layer[output_index].weights = weights
+                self.output_layer[output_index].bias = bias
+                output_index += 1
 
 
     def feedforward(self, inputs):
