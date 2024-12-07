@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Neuron:
-    def __init__(self, input_size, alpha=0.7):
+    def __init__(self, input_size, alpha=0.3):
         self.weights = np.random.rand(input_size)
         self.bias = np.random.rand()
         self.output = 0
