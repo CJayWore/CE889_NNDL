@@ -56,7 +56,8 @@ for epoch in range(epochs):
     print(f'Epoch {epoch + 1}, Loss: {total_loss}, Gradient_Hidden: {total_gradient_hidden}, Gradient_Output: {total_gradient_output}')
     if total_loss < best_loss:
         best_loss = total_loss
-        nn.save_weights('best_weights.txt')
+        nn.save_weights('best_weights.csv')
+
 # Testing
 total_predictions = len(inputs_test)
 predicted_outputs = []  # 存储所有测试样本的预测结果
