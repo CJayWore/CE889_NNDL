@@ -45,7 +45,7 @@ class NeuralNetwork:
         # self.min_gradient = min_gradient
 
         # 网络结构
-        # 输入层：2个神经元，隐藏层：1层3个神经元，输出层：2个神经元
+        # 输入层：2个神经元，隐藏层：1层4个神经元，输出层：2个神经元
         self.input_layer_size = 2
         self.hidden_layer = [Neuron(self.input_layer_size) for _ in range(4)]
         self.output_layer = [Neuron(len(self.hidden_layer)) for _ in range(2)]
@@ -70,13 +70,15 @@ class NeuralNetwork:
         for _, row in df.iterrows():
             layer_type = row[0]
             weights = np.array(row[1:-1],dtype=float)
-            bias = float(row[-1])
+
 
             if layer_type == 'hidden':
+                bias = float(row[2])
                 self.hidden_layer[hidden_index].weights = weights
                 self.hidden_layer[hidden_index].bias = bias
                 hidden_index += 1
             elif layer_type == 'output':
+                bias = float(row[4])
                 self.output_layer[output_index].weights = weights
                 self.output_layer[output_index].bias = bias
                 output_index += 1
