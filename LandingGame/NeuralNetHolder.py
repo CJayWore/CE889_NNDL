@@ -4,13 +4,13 @@ import NeuralNetwork as MyNN
 
 # TODO Test your neural network by running the most recent weights
 class NeuralNetHolder:
-    def __init__(self, learning_rate = 0.00505, momentum = 0.55):
+    def __init__(self, learning_rate = 0.01, momentum = 0.1):
         super().__init__()
         self.neural_network = MyNN.NeuralNetwork(learning_rate=learning_rate, momentum=momentum)
-        self.neural_network.load_weights('best_weights.txt')
+        self.neural_network.load_weights('best_weights.csv')
         # Distance_X;   Distance_Y;     VEL_X;      VEL_Y
-        MIN = np.array([-813.7402115385238, 65.51007146585391, -7.627232284457143, -6.7220382959068194])
-        MAX = np.array([806.3026531690357, 1025.4204598915912, 7.9999999999999805, 6.557437589810967])
+        MIN=np.array([-813.7402115385238, 65.51007146585391, -7.665462826728868, -6.841827957916776])
+        MAX=np.array([806.3026531690357, 1025.4204598915912, 7.9999999999999805, 6.557437589810967])
         self.input_min = MIN[:2]  # distance_x_min, distance_y_min
         self.input_max = MAX[:2]  # distance_x_max, distance_y_max 729.4015358007854
 
