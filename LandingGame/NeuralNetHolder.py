@@ -7,49 +7,42 @@ class NeuralNetHolder:
     def __init__(self, learning_rate = 0.00505, momentum = 0.55):
         super().__init__()
         self.neural_network = MyNN.NeuralNetwork(learning_rate=learning_rate, momentum=momentum)
-        self.neural_network.load_weights('best_weights')
-        # distance_x_min = -813.9287676
-        # distance_y_min = 65.50759614
-        #
-        # distance_x_max = 812.1102333272916
-        # distance_y_max = 1023.9753606086138
-        #
-        # velocity_x_min = -7.083290281
-        # velocity_y_min = -7.991966048
-        #
-        # velocity_x_max = 7.999999999999989
-        # velocity_y_max = 7.982954972793153
-        self.input_min = np.array([-813.9287676, 65.50759614])  # distance_x_min, distance_y_min
-        self.input_max = np.array([812.1102333272916, 1023.9753606086138])  # distance_x_max, distance_y_max
+        self.neural_network.load_weights('best_weights.txt')
+        # Distance_X;   Distance_Y;     VEL_X;      VEL_Y
+        MIN = np.array([-813.7402115385238, 65.51007146585391, -7.627232284457143, -6.7220382959068194])
+        MAX = np.array([806.3026531690357, 1025.4204598915912, 7.9999999999999805, 6.557437589810967])
+        self.input_min = MIN[:2]  # distance_x_min, distance_y_min
+        self.input_max = MAX[:2]  # distance_x_max, distance_y_max 729.4015358007854
 
-        self.output_min = np.array([-7.083290281, -7.991966048])  # velocity_x_min, velocity_y_min
-        self.output_max = np.array([7.999999999999989, 7.982954972793153])  # velocity_x_max, velocity_y_max
-
-    # def normalize_input(self, input_data):
-    #     normalized_data = 2 * (input_data - self.input_min) / (self.input_max - self.input_min) - 1
-    #     return np.clip(normalized_data, -1, 1)
-    #
-    # def denormalize_output(self, output_data):
-    #     output_data = np.array(output_data,dtype=np.float64)
-    #     denormalized_data = (output_data+1) * (self.output_max - self.output_min)/2 + self.output_min
-    #     return denormalized_data
+        self.output_min = MIN[2:]  # velocity_x_min, velocity_y_min
+        self.output_max = MAX[2:]  # velocity_x_max, velocity_y_max
 
     def normalize_input(self, input_data):
-        # 计算均值和标准差
-        mean = (self.input_max + self.input_min)/ 2
-        std = (self.input_max - self.input_min) / 2
-        # Z-score
-        normalized_data = (input_data - mean) / std
-        return normalized_data
+        signs = np.sign(input_data)
+        normalized_data = (input_data - self.input_min) / (self.input_max - self.input_min)
+        return normalized_data, signs
 
-    def denormalize_output(self, output_data):
-        # 计算均值和标准差
-        output_data = np.array(output_data, dtype=np.float64)
-        mean = (self.output_max + self.output_min) / 2
-        std = (self.output_max - self.output_min) / 2
-        # Z-score
-        denormalized_data = output_data * std + mean
+    def denormalize_output(self, output_data, signs):
+        output_data = np.array(output_data,dtype=np.float64)
+        denormalized_data = (output_data * (self.output_max - self.output_min) + self.output_min)
         return denormalized_data
+
+    # def normalize_input(self, input_data):
+    #     # 计算均值和标准差
+    #     mean = (self.input_max + self.input_min)/ 2
+    #     std = (self.input_max - self.input_min) / 2
+    #     # Z-score
+    #     normalized_data = (input_data - mean) / std
+    #     return normalized_data
+    #
+    # def denormalize_output(self, output_data):
+    #     # 计算均值和标准差
+    #     output_data = np.array(output_data, dtype=np.float64)
+    #     mean = (self.output_max + self.output_min) / 2
+    #     std = (self.output_max - self.output_min) / 2
+    #     # Z-score
+    #     denormalized_data = output_data * std + mean
+    #     return denormalized_data
 
     def process_input(self, input_row):
         # 处理字符串格式的输入
@@ -62,12 +55,16 @@ class NeuralNetHolder:
         print('input_row',input_row)
         input_row=self.process_input(input_row)
         print('processed input_row',input_row)
-        normalized_input = self.normalize_input(input_row)
-        print('normalized_input',normalized_input)
-        predicted_output = self.neural_network.feedforward(normalized_input)
-        denormalized_output = self.denormalize_output(predicted_output)
-        print('denormalized_output',denormalized_output)
-        # VEL_X, VEL_Y = denormalized_output
-        # print('VEL_X',VEL_X,'VEL_Y',VEL_Y)
 
+        normalized_input, signs = self.normalize_input(input_row)
+        print('normalized_input',normalized_input)
+        print('signs',signs)
+
+        predicted_output = self.neural_network.feedforward(normalized_input)
+        denormalized_output = self.denormalize_output(predicted_output, signs)
+        print('denormalized_output',denormalized_output)
+
+        VEL_X, VEL_Y = denormalized_output
+        # print('VEL_X',VEL_X, 'VEL_Y',VEL_Y)
+        # print((VEL_X, VEL_Y))
         return denormalized_output
