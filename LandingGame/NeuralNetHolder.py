@@ -18,9 +18,8 @@ class NeuralNetHolder:
         self.output_max = MAX[2:]  # velocity_x_max, velocity_y_max
 
     def normalize_input(self, input_data):
-        signs = np.sign(input_data)
         normalized_data = (input_data - self.input_min) / (self.input_max - self.input_min)
-        return normalized_data, signs
+        return normalized_data
 
     def denormalize_output(self, output_data, signs):
         output_data = np.array(output_data,dtype=np.float64)
@@ -56,12 +55,11 @@ class NeuralNetHolder:
         input_row=self.process_input(input_row)
         print('processed input_row',input_row)
 
-        normalized_input, signs = self.normalize_input(input_row)
+        normalized_input = self.normalize_input(input_row)
         print('normalized_input',normalized_input)
-        print('signs',signs)
 
         predicted_output = self.neural_network.feedforward(normalized_input)
-        denormalized_output = self.denormalize_output(predicted_output, signs)
+        denormalized_output = self.denormalize_output(predicted_output)
         print('denormalized_output',denormalized_output)
 
         VEL_X, VEL_Y = denormalized_output
