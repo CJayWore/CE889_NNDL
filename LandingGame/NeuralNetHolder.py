@@ -9,8 +9,8 @@ class NeuralNetHolder:
         self.neural_network = MyNN.NeuralNetwork(learning_rate=learning_rate, momentum=momentum)
         self.neural_network.load_weights('best_weights.csv')
         # Distance_X;   Distance_Y;     VEL_X;      VEL_Y
-        MIN=np.array([-813.7402115385238, 65.51007146585391, -7.665462826728868, -6.841827957916776])
-        MAX=np.array([806.3026531690357, 1025.4204598915912, 7.9999999999999805, 6.557437589810967])
+        MIN = np.array([-813.7402115, 65.50280862, -7.665462827, -6.801827958])
+        MAX = np.array([811.4178905, 1025.4204598915912, 8.0, 6.783328501046375])
         self.input_min = MIN[:2]  # distance_x_min, distance_y_min
         self.input_max = MAX[:2]  # distance_x_max, distance_y_max 729.4015358007854
 
@@ -21,7 +21,7 @@ class NeuralNetHolder:
         normalized_data = (input_data - self.input_min) / (self.input_max - self.input_min)
         return normalized_data
 
-    def denormalize_output(self, output_data, signs):
+    def denormalize_output(self, output_data):
         output_data = np.array(output_data,dtype=np.float64)
         denormalized_data = (output_data * (self.output_max - self.output_min) + self.output_min)
         return denormalized_data
@@ -44,7 +44,6 @@ class NeuralNetHolder:
     #     return denormalized_data
 
     def process_input(self, input_row):
-        # 处理字符串格式的输入
         if isinstance(input_row, str):
             input_row = [float(val.strip()) for val in input_row.split(',')]
         return np.array(input_row, dtype=np.float64)
@@ -65,4 +64,4 @@ class NeuralNetHolder:
         VEL_X, VEL_Y = denormalized_output
         # print('VEL_X',VEL_X, 'VEL_Y',VEL_Y)
         # print((VEL_X, VEL_Y))
-        return denormalized_output
+        return VEL_Y, VEL_X

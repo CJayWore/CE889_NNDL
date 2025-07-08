@@ -44,6 +44,7 @@ outputs_test = test_normalized[:,2:]
 best_loss = float('inf')
 for epoch in range(epochs):
     total_loss = 0
+    counter = 0
     total_gradient_hidden = np.zeros(len(nn.hidden_layer))  # 隐藏层梯度
     total_gradient_output = np.zeros(len(nn.output_layer))
     for x, y in zip(inputs_train, outputs_train):
@@ -57,6 +58,10 @@ for epoch in range(epochs):
     if total_loss < best_loss:
         best_loss = total_loss
         nn.save_weights('best_weights.csv')
+    else:
+        counter += 1
+    if counter > 20:
+        break
 
 # Testing
 total_predictions = len(inputs_test)
@@ -71,7 +76,6 @@ for inputs, real_output in zip(inputs_test, outputs_test):
     predicted_output = nn.feedforward(inputs)
     predicted_outputs.append(predicted_output)
 
-    # print(f'RMSE: {rmse}')
 
 predicted_outputs = np.array(predicted_outputs)
 rmse = np.sqrt(np.mean((predicted_outputs - outputs_test) ** 2))

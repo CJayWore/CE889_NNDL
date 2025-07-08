@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-source_df = pd.read_csv('raw_data.csv',header=None)
+source_df = pd.read_csv('ce889_dataCollection.csv',header=None)
 x = len(source_df)//5
 testing_df = source_df.sample(n=x) # 随机选取x行
 training_df = source_df.drop(testing_df.index)
@@ -30,7 +30,7 @@ def normalize_testing_data(df):
     result = df.copy()
     i = 0
     for column in df.columns:
-        result[column] = 2 * (df[column] - MIN[i]) / (MAX[i]-MIN[i]) - 1
+        result[column] = (df[column] - MIN[i]) / (MAX[i]-MIN[i])
         i += 1
     return result
 
